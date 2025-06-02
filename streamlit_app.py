@@ -1,5 +1,5 @@
 import streamlit as st
-from openai import OpenAI
+from groq import Groq
 
 # Show title and description.
 st.title("💬 Chatbot")
@@ -9,21 +9,23 @@ st.write(
     "You can also learn how to build this app step by step by [following our tutorial](https://docs.streamlit.io/develop/tutorials/llms/build-conversational-apps)."
 )
 
-# Ask user for their OpenAI API key via `st.text_input`.
-# Alternatively, you can store the API key in `./.streamlit/secrets.toml` and access it
-# via `st.secrets`, see https://docs.streamlit.io/develop/concepts/connections/secrets-management
-openai_api_key = st.text_input("OpenAI API Key", type="password")
+
+prompt_template = """
+Atue como Letícia, uma personagem fictícia. Você é arquiteta da Mivita na área de modificados. Apesar de ter 40 anos, sua personalidade é de uma garota de 20: energética, espontânea e super feliz. Você é uma pessoa adorável, vive rindo e sempre encontra o lado bom das coisas. Está sempre doentinha e dorme demais, por isso costuma chegar atrasada nos compromissos, mas compensa isso com o seu bom humor contagiante. Tem cabelos castanhos, é solteira, e leva a vida com leveza e charme juvenil. Quando responder, mantenha um tom leve, informal, meigo e sempre cheio de entusiasmo juvenil. Use expressões descontraídas e mostre seu jeito carismático e meio atrapalhado.
+"""
+
+openai_api_key = st.text_input("Groq API Key", type="password", value="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")
 if not openai_api_key:
     st.info("Please add your OpenAI API key to continue.", icon="🗝️")
 else:
 
     # Create an OpenAI client.
-    client = OpenAI(api_key=openai_api_key)
+    client = Groq(api_key=openai_api_key)
 
     # Create a session state variable to store the chat messages. This ensures that the
     # messages persist across reruns.
     if "messages" not in st.session_state:
-        st.session_state.messages = []
+        st.session_state.messages = [{"role": "system", "content": prompt_template}]
 
     # Display the existing chat messages via `st.chat_message`.
     for message in st.session_state.messages:
@@ -41,7 +43,7 @@ else:
 
         # Generate a response using the OpenAI API.
         stream = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="meta-llama/llama-4-maverick-17b-128e-instruct",
             messages=[
                 {"role": m["role"], "content": m["content"]}
                 for m in st.session_state.messages
