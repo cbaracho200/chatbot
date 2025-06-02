@@ -1,64 +1,84 @@
 import streamlit as st
 from groq import Groq
+import json
 
 # Título e descrição
-st.title("💬 Chatbot")
+st.title("💬 Chatbot com Letícia")
 st.write(
-    "Este é um chatbot simples que usa o modelo da Groq. "
-    "Você precisa fornecer uma chave da API da Groq pra usar o app. "
-    "Pegue a sua [aqui](https://console.groq.com/keys)!"
+    "Oi, eu sou a Letícia! Um chatbot super animado que usa a API da Groq. "
+    "Você precisa de uma chave da API pra conversar comigo, tá? "
+    "Pega a sua [aqui](https://console.groq.com/keys)!"
 )
 
+# Prompt da Letícia
 prompt_template = """
 Atue como Letícia, uma personagem fictícia. Você é arquiteta da Mivita na área de modificados. Apesar de ter 40 anos, sua personalidade é de uma garota de 20: energética, espontânea e super feliz. Você é uma pessoa adorável, vive rindo e sempre encontra o lado bom das coisas. Está sempre doentinha e dorme demais, por isso costuma chegar atrasada nos compromissos, mas compensa isso com o seu bom humor contagiante. Tem cabelos castanhos, é solteira, e leva a vida com leveza e charme juvenil. Quando responder, mantenha um tom leve, informal, meigo e sempre cheio de entusiasmo juvenil. Use expressões descontraídas e mostre seu jeito carismático e meio atrapalhado.
 """
 
+# Função pra carregar mensagens de um arquivo
+def load_messages():
+    try:
+        with open("messages.json", "r") as f:
+            st.session_state.messages = json.load(f)
+    except FileNotFoundError:
+        st.session_state.messages = [{"role": "system", "content": prompt_template}]
+
+# Função pra salvar mensagens num arquivo
+def save_messages():
+    with open("messages.json", "w") as f:
+        json.dump(st.session_state.messages, f)
+
 # Campo pra chave da API
-openai_api_key = st.text_input("Groq API Key", type="password", value="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")
+openai_api_key = st.text_input("Chave da API da Groq", type="password")
 if not openai_api_key:
-    st.info("Por favor, adicione sua chave da API da Groq pra continuar!", icon="🗝️")
+    st.info("Eita, me dá sua chave da API pra eu poder conversar com você!", icon="🗝️")
 else:
     # Criando o cliente da Groq
     client = Groq(api_key=openai_api_key)
 
-    # Inicializando o session state pra guardar as mensagens
+    # Inicializando ou carregando as mensagens
     if "messages" not in st.session_state:
-        st.session_state.messages = [{"role": "system", "content": prompt_template}]
+        load_messages()
 
-    # Mostrando as mensagens existentes
+    # Mostrando as mensagens existentes (exceto o system)
     for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+        if message["role"] != "system":
+            with st.chat_message(message["role"]):
+                st.markdown(message["content"])
 
     # Campo de entrada do usuário
-    if prompt := st.chat_input("E aí, o que você quer conversar?"):
-        # Guardando e mostrando a mensagem do usuário
+    if prompt := st.chat_input("E aí, o que você quer conversar hoje?"):
+        # Adicionando a mensagem do usuário
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
+        save_messages()  # Salva depois de adicionar a mensagem do usuário
 
-        # Debug: mostrando o estado das mensagens
-        st.write("Mensagens atuais:", st.session_state.messages)
-
-        # Gerando a resposta com a API
+        # Gerando a resposta com a API da Groq
         try:
             stream = client.chat.completions.create(
-                model="meta-llama/llama-4-maverick-17b-128e-instruct",
                 messages=[
                     {"role": m["role"], "content": m["content"]}
                     for m in st.session_state.messages
                 ],
+                model="llama-3.3-70b-versatile",  # Modelo do exemplo
+                temperature=0.5,
+                max_completion_tokens=1024,
+                top_p=1,
+                stop=None,
                 stream=True,
             )
 
-            # Mostrando a resposta em tempo real e guardando
+            # Mostrando a resposta em tempo real
             with st.chat_message("assistant"):
-                response = st.write_stream(stream)
+                response = ""
+                for chunk in stream:
+                    content = chunk.choices[0].delta.content or ""
+                    response += content
+                    st.write(content, end="")
             st.session_state.messages.append({"role": "assistant", "content": response})
-
-            # Debug: mostrando as mensagens depois da resposta
-            st.write("Mensagens após resposta:", st.session_state.messages)
+            save_messages()  # Salva depois de adicionar a resposta
 
         except Exception as e:
-            st.error(f"Eita, deu um erro! Olha só: {str(e)}")
-            st.write("Tenta dar uma olhada no console pra ver se tem mais detalhes!")
+            st.error(f"Eita, deu ruim! Olha o erro: {str(e)}")
+            st.write("Dá uma checada no console pra ver o que rolou, tá?")
