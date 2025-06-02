@@ -243,7 +243,7 @@ with st.sidebar:
         "Chave da API Groq", 
         type="password",
         help="Insira sua chave da API da Groq",
-        value="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"
+        value=st.secrets["GROQ_API_KEY"]
     )
     
     # Configurações do modelo
