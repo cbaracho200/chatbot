@@ -235,6 +235,7 @@ st.markdown('<p class="subtitle">Assistente inteligente powered by Groq AI</p>',
 
 # Sidebar com configurações (mais discreta)
 with st.sidebar:
+    st.logo("replicate-prediction-51m5chmx3drmc0cq443ssa0kb8.png")
     st.header("Configurações")
     
     # Campo para chave da API
