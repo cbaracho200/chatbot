@@ -56,7 +56,7 @@ with st.sidebar:
     st.subheader("🤖 Configurações do Modelo")
     model = st.selectbox(
         "Modelo",
-        ["llama-3.3-70b-versatile", "llama-3.1-70b-versatile", "mixtral-8x7b-32768"],
+        ["llama-3.3-70b-versatile", "llama-3.1-70b-versatile", "mixtral-8x7b-32768", "meta-llama/llama-4-maverick-17b-128e-instruct","meta-llama/llama-4-scout-17b-16e-instruct"],
         index=0
     )
     
