@@ -177,7 +177,7 @@ def validate_api_key(api_key, client):
         # Testa com uma mensagem simples
         test_response = client.chat.completions.create(
             messages=[{"role": "user", "content": "Hi"}],
-            model="llama-3.3-70b-versatile",
+            model="meta-llama/llama-4-maverick-17b-128e-instruct",
             max_tokens=5,
             temperature=0.1
         )
