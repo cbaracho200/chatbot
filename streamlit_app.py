@@ -241,7 +241,8 @@ with st.sidebar:
     groq_api_key = st.text_input(
         "Chave da API Groq", 
         type="password",
-        help="Insira sua chave da API da Groq"
+        help="Insira sua chave da API da Groq",
+        value="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"
     )
     
     # Configurações do modelo
