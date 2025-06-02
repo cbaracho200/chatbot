@@ -61,21 +61,22 @@ else:
                     {"role": m["role"], "content": m["content"]}
                     for m in st.session_state.messages
                 ],
-                model="llama-3.3-70b-versatile",  # Modelo do exemplo
+                model="llama-3.1-70b-versatile",  # Modelo válido da Groq
                 temperature=0.5,
-                max_completion_tokens=1024,
+                max_tokens=1024,  # Corrigido para max_tokens
                 top_p=1,
                 stop=None,
                 stream=True,
             )
 
-            # Mostrando a resposta em tempo real
+            # Mostrando a resposta em tempo real com placeholder
             with st.chat_message("assistant"):
+                placeholder = st.empty()
                 response = ""
                 for chunk in stream:
                     content = chunk.choices[0].delta.content or ""
                     response += content
-                    st.write(content, end="")
+                    placeholder.markdown(response)
             st.session_state.messages.append({"role": "assistant", "content": response})
             save_messages()  # Salva depois de adicionar a resposta
 
