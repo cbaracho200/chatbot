@@ -202,7 +202,7 @@ def validate_api_key(api_key, client):
     try:
         test_response = client.chat.completions.create(
             messages=[{"role": "user", "content": "Hi"}],
-            model="llama-3.3-70b-versatile",
+            model="meta-llama/llama-4-maverick-17b-128e-instruct",
             max_tokens=5,
             temperature=0.1
         )
@@ -248,7 +248,7 @@ with st.sidebar:
     with st.expander("⚙️ Configurações Avançadas"):
         model = st.selectbox(
             "Modelo",
-            ["llama-3.3-70b-versatile", "llama-3.1-70b-versatile", "mixtral-8x7b-32768"],
+            ["llama-3.3-70b-versatile", "llama-3.1-70b-versatile", "mixtral-8x7b-32768","meta-llama/llama-4-maverick-17b-128e-instruct"],
             index=0
         )
         
